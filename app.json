@@ -1,6 +1,6 @@
 {
   "expo": {
-    "scheme": "acme",
+    "scheme": "aora",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
@@ -15,7 +15,7 @@
         }
       ]
     ],
-    "name": "aora",
+    "name": "Aora",
     "slug": "aora"
   }
 }
