@@ -7,6 +7,17 @@
       "output": "static",
       "bundler": "metro"
     },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.jsm.sora"
+    },
     "plugins": [
       [
         "expo-router",
@@ -15,6 +26,11 @@
         }
       ]
     ],
+    "splash": {
+      "image": "./src/assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "name": "Aora",
     "slug": "aora"
   }
