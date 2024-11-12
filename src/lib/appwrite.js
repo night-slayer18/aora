@@ -90,3 +90,37 @@ export const getCurrentUser = async () => {
         throw new Error(error);
     }
 }
+
+export const getAllPosts = async () => {
+    try {
+        const posts = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId
+        )
+        if (!posts) {
+            throw new Error('Failed to get posts');
+        }
+        return posts.documents;
+    } catch (error) {
+        console.log(error);
+        throw new Error(error);
+    }
+}
+
+export const getLatestPosts = async () => {
+    try {
+        const posts = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            [Query.orderDesc('$createdAt',Query.limit(7))]
+        )
+        if (!posts) {
+            throw new Error('Failed to get posts');
+        }
+        return posts.documents;
+    } catch (error) {
+        console.log(error);
+        throw new Error(error);
+    }
+}
+
