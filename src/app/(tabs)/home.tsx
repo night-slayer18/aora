@@ -8,8 +8,10 @@ import EmptyState from '@/components/EmptyState'
 import { getAllPosts, getLatestPosts } from '@/lib/appwrite'
 import useAppWrite from '@/lib/useAppWrite'
 import VideoCard from '@/components/VideoCard'
+import { useGlobalContext } from '@/context/GlobalProvider'
 
 const Home = () => {
+  const {user} = useGlobalContext()
   const { data : posts, refetch } = useAppWrite(getAllPosts)
   const { data : latestPosts } = useAppWrite(getLatestPosts)
   const [refreshing, setRefreshing] = useState(false)
@@ -34,7 +36,7 @@ const Home = () => {
                     Welcome Back
                   </Text>
                   <Text className='text-2xl font-psemibold text-white'>
-                    John Doe
+                    {user.username}
                   </Text>
                 </View> 
                 <View className='mt-1.5'>
@@ -45,7 +47,7 @@ const Home = () => {
                   />
                 </View>
               </View>
-              <SearchInput title={undefined} value={undefined} placeholder={undefined} handleChangeText={undefined} otherStyles={undefined} keyboardType={undefined}/>
+              <SearchInput initialQuery={''}/>
               <View className='w-full flex-1 pt-5 pb-8'>
                 <Text className='text-gray-100 text-lg font-pregular mb-3'>
                   Latest Videos
