@@ -1,4 +1,4 @@
-import { Account, Avatars, Client, Databases, ID, Query } from 'react-native-appwrite';
+import { Account, Avatars, Client, Databases, ID, Query, Storage } from 'react-native-appwrite';
 
 export const appwriteConfig = {
     endpoint: 'https://cloud.appwrite.io/v1',
@@ -21,6 +21,7 @@ client
 const account = new Account(client);
 const avatars = new Avatars(client);
 const databases = new Databases(client);
+const storage = new Storage(client);
 
 export const createUser = async (email,password,username) => {
     try {
@@ -95,7 +96,8 @@ export const getAllPosts = async () => {
     try {
         const posts = await databases.listDocuments(
             appwriteConfig.databaseId,
-            appwriteConfig.videoCollectionId
+            appwriteConfig.videoCollectionId,
+            [Query.orderDesc('$createdAt')]
         )
         if (!posts) {
             throw new Error('Failed to get posts');
@@ -165,6 +167,82 @@ export const signOut = async () => {
             throw new Error('Failed to delete session');
         }
         return session;
+    } catch (error) {
+        console.log(error);
+        throw new Error(error);
+    }
+}
+
+export const getFilePreview = async (fileId, type) => {
+    let fileUrl;
+    try {
+        if(type === 'image') {
+            fileUrl = storage.getFilePreview(appwriteConfig.storageId, fileId,2000,2000,'top',100);
+        } else if (type === 'video') {
+            fileUrl = storage.getFileView(appwriteConfig.storageId, fileId);
+        }
+        else {
+            throw new Error('Invalid file type');
+        }
+        if (!fileUrl) {
+            throw new Error('Failed to get file preview');
+        }
+        return fileUrl;
+    } catch (error) {
+        console.log(error);
+        throw new Error(error);
+    }
+}
+
+export const uploadFIle = async (file, type) => {
+    if (!file) {
+        return
+    }
+    const asset = {
+        name: file.fileName,
+        type: file.mimeType,
+        size: file.fileSize,
+        uri: file.uri
+    };
+    try {
+        const uploadedFile = await storage.createFile(
+            appwriteConfig.storageId,
+            ID.unique(),
+            asset,
+        );
+        if (!uploadedFile) {
+            throw new Error('Failed to upload file');
+        }
+        const fileUrl = await getFilePreview(uploadedFile.$id, type);
+        return fileUrl;
+    } catch (error) {
+        console.log(error);
+        throw new Error(error);
+    }
+}
+
+export const createVideo = async (form) => {
+    try {
+        const [thumbnailUrl,videoUrl] = await Promise.all([
+            uploadFIle(form.thumbnail, 'image'),
+            uploadFIle(form.video, 'video')
+        ])
+        const newPost = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.videoCollectionId,
+            ID.unique(),
+            {
+                title: form.title,
+                video: videoUrl,
+                thumbnail: thumbnailUrl,
+                prompt: form.prompt,
+                creator: form.userId
+            }
+        )
+        if (!newPost) {
+            throw new Error('Failed to create new video');
+        }
+        return newPost;
     } catch (error) {
         console.log(error);
         throw new Error(error);
